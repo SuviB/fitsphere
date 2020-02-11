@@ -2,7 +2,7 @@
 IDL code to fit parameters of a sphere as a function of time to CME (Coronal mass ejection) observations.
 
 Input:
--date       = date of the event.
+- date       = date of the event.
 -start      = starting time.
 -stop       = time of the last image to be considered.
 -Ar_o, Br_o = r-coordinate of the sphere origin is given by: r_o = Ar_o + Br_o t ,
