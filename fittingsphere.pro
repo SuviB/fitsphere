@@ -3,9 +3,9 @@
 ;To find what kind of a sphere fits to the pictures of CME.
 ;
 ;Way:
-;Finds files close to a given time, plots them as basetimediff or
-;runtimediff.
-;then plots on the pictures a projection of the sphere, given parameters.
+;Finds files close to a given time, plots them as running time
+;difference images.
+;Then plots on the pictures a projection of a sphere, given parameters.
 ;
 ;Parameters:
 ;date = 'yyyymmdd'
@@ -15,34 +15,32 @@
 ;th_o = latitude [deg], origo coordinate
 ;ph_o = longitude [deg], origo coordinate
 ;Arab,Brad = radius [solar radius] of the sphere (unit meters)
+;rounds = number of iteration rounds.
 ;
 ;Calls for: listSTEREO.pro, findfile.pro, runtimediff.pro,
 ;listSOHO.pro, pointsonthecircle.pro,
-;sphere.pro, r_iterointi.pro, dir_iterointi.pro
+;sphere.pro, r_iterointi.pro
 ;-
 
 ;Calling sequence:
-;fittingsphere, date='20140225', start='00:45', stop='02:00', Ar_o=1, Br_o=1, ph_o=1, th_o=1, Arad=2, Brad=0,  runtimediff=1, points_a='a', points_b='b', points_c='c'
+;fittingsphere,date='20140225',start='00:45',stop='02:00', Ar_o=100,Br_o=1e5,ph_o=1,th_o=1,Arad=200,Brad=3e5,points_a='a',points_b='b',points_c='c',rounds=5
 
 
 pro fittingsphere, date=date, start=start, stop=stop, $
                    Ar_o=Ar_o, Br_o=Br_o, ph_o=ph_o, th_o=th_o,$
-                   Arad=Arad, Brad=Brad,$
-                   runtimediff=runtimediff, points_a=points_a, $
-                   points_b=points_b, points_c=points_c
+                   Arad=Arad, Brad=Brad, points_a=points_a, $
+                   points_b=points_b, points_c=points_c, rounds=rounds
 
   
   ;PARAMETERS:
-  t0 = 09*3600 + 00*60          ;Beginning of the event in seconds from 00:00UT
-  kierroksia = 10
+  tmp = STRSPLIT(start,':', /EXTRACT)
+  t0 = tmp[0]*3600 + tmp[1]*60   ;Beginning of the event in seconds from 00:00UT
+  kierroksia = rounds
 
   
-  if runtimediff eq 1 then begin
-     basetimediff = 0
-  endif else begin
-     basetimediff = 1
-  endelse
-    
+  runtimediff = 1 
+  basetimediff = 0
+   
   ;files is a list of the files and their paths from one day.
   listSTEREO, stereoa=1, stereob=1, date=date, stereofilesa, stereofilesb
   listSOHO, date=date, sohofiles
@@ -114,24 +112,10 @@ pro fittingsphere, date=date, start=start, stop=stop, $
            polarisationa = aindex1.POLAR
            detectora = aindex1.DETECTOR
         
-           ;base time difference substraction frame
-           if basetimediff eq 1 then begin
-              for i=0, n_elements(obsdatea[0,*])-1 do begin
-                 if obsdatea[1,i] eq polarisationa and $
-                    obsdatea[2,i] eq detectora then begin
-                    adiff_frame=i
-                    print, 'Found a time difference frame at: ', obsdatea[0,i]
-                    i=n_elements(obsdatea)
-                 endif
-              endfor
-           endif
-        
            ;run time difference subtraction frame
-           if runtimediff eq 1 then begin
-              runtimediff, obsdate=obsdatea, time=basetime, frame=frame, $
-                           polarisation=polarisationa, detector=detectora
-              adiff_frame = frame
-           endif
+           runtimediff, obsdate=obsdatea, time=basetime, frame=frame, $
+                        polarisation=polarisationa, detector=detectora
+           adiff_frame = frame
 
            if adiff_frame ge 0 then begin
               ;Find the time difference frame:
@@ -217,25 +201,6 @@ pro fittingsphere, date=date, start=start, stop=stop, $
                          kuvay=akuvay
                  oplot, akuvax, akuvay, color=cgcolor('Blue'), psym=1,$
                         linestyle=0, symsize=1
-
-
-                 
-
-                 ;Save a weight for the points in the picture, later khi can
-                 ;be multipliedby this.
-                 
-    ;             READ, A, PROMPT='Give a weight for this image [0,1]'
-    ;             test = isnumber(A)
-    ;             if A ge 1 or A le 0 or test eq 0 then begin
-    ;                READ, A, PROMPT='Please give a value between 0 and 1.'
-    ;             end
-    ;             if A le 1 or A ge 0 then begin
-    ;                write_csv, newtime + weight_a + '.csv', A
-    ;             endif
-                 
-
-
-                 
                  
               endif
            endif
@@ -296,25 +261,10 @@ pro fittingsphere, date=date, start=start, stop=stop, $
            polarisationb = bindex1.POLAR
            detectorb = bindex1.DETECTOR
  
-           ;base time difference substraction frame
-           if basetimediff eq 1 then begin
-              for i=0, n_elements(obsdateb[0,*])-1 do begin
-                 if obsdateb[1,i] eq polarisationb and $
-                    obsdateb[2,i] eq detectorb then begin
-                    bdiff_frame=i
-                    print, 'Found a time difference frame at: ', obsdateb[0,i]
-                    print, ''
-                    i=n_elements(obsdateb)
-                 endif
-              endfor
-           endif
-        
            ;run time difference subtraction frame
-           if runtimediff eq 1 then begin
-              runtimediff, obsdate=obsdateb, time=basetime, frame=frame,$
-                           polarisation=polarisationb, detector=detectorb
-              bdiff_frame=frame
-           endif
+           runtimediff, obsdate=obsdateb, time=basetime, frame=frame,$
+                        polarisation=polarisationb, detector=detectorb
+           bdiff_frame=frame
            
            if bdiff_frame ge 0 then begin
               ;Find the time difference frame:
@@ -462,24 +412,10 @@ pro fittingsphere, date=date, start=start, stop=stop, $
            polarisationc = index1.POLAR
            detectorc = index1.DETECTOR
            
-           ;base time difference substraction frame
-           if basetimediff eq 1 then begin
-              for i=0, n_elements(obsdatec[0,*])-1 do begin
-                 if obsdatec[1,i] eq polarisationc and $
-                    obsdatec[2,i] eq detectorc then begin
-                    sohodiff_frame=i
-                    print, 'Found a time difference frame at: ', obsdatec[0,i]
-                    i=n_elements(obsdatec)
-                 endif
-              endfor
-           endif
-        
            ;runtime difference subtraction frame
-           if runtimediff eq 1 then begin
-              runtimediff, obsdate=obsdatec, time=basetime, frame=frame,$
-                           polarisation=polarisationc, detector=detectorc
-              sohodiff_frame=frame
-           endif
+           runtimediff, obsdate=obsdatec, time=basetime, frame=frame,$
+                        polarisation=polarisationc, detector=detectorc
+           sohodiff_frame=frame
 
            if sohodiff_frame ge 0 then begin
               ;Find the time difference frame:
@@ -604,9 +540,9 @@ pro fittingsphere, date=date, start=start, stop=stop, $
 
   edellinenminimir = 1e+09
   edellinenminimidir = 1e+09
-  avalir = 3e+05
+  avalir = 1e+05
   bvalir = 3e+05
-  validir = 10
+  validir = 30
 
   
   for p=0, kierroksia-1 do begin

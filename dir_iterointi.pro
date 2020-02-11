@@ -1,6 +1,5 @@
 ;+
-;Fitting the parameters of the coordinates of the origin of the sphere
-;by least-square method to the observations.
+;
 ;-
 
 pro dir_iterointi, th_0=th_0, ph_0=ph_0, framesa=framesa, framesb=framesb, framesc=framesc, obsdatea=obsdatea, obsdateb=obsdateb, obsdatec=obsdatec, stereofilesa=stereofilesa, stereofilesb=stereofilesb, sohofiles=sohofiles, points_a=points_a, points_b=points_b, points_c=points_c, Arcoord=Arcoord, Brcoord=Brcoord, Aradius=Aradius, Bradius=Bradius, t0=t0, direction, edellinenminimidir, validir
@@ -26,8 +25,9 @@ pro dir_iterointi, th_0=th_0, ph_0=ph_0, framesa=framesa, framesb=framesb, frame
   ;TÄSTÄ ALKAIS ETSINTÄKIERTO:
   for kierros=2, nrofruns+1 do begin
 
-     print, "Beginning iterationround number ", STRTRIM(kierros-1, 1),$
-            " out of ", STRTRIM(nrofruns, 1), " with parameters:"
+     print, "Beginning direction iteration subround number ", $
+            STRTRIM(kierros-1, 1), " out of ", STRTRIM(nrofruns, 1), $
+            " with parameters:"
      print, "th_o = ", strtrim(th,1), ", ph_o = ", strtrim(ph,1)
 
      rndth = fltarr(numberofrandompoints)

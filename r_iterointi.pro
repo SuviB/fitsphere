@@ -1,6 +1,5 @@
 ;+
-;Fitting the parameters of the radius of the sphere by least-square
-;method to the observations.
+;
 ;-
 
 pro r_iterointi, th_0=th_0, ph_0=ph_0, Ar_o=Ar_o, Br_o=Br_o, A_rad=A_rad, B_rad=B_rad, framesa=framesa, framesb=framesb, framesc=framesc, obsdatea=obsdatea, obsdateb=obsdateb, obsdatec=obsdatec, stereofilesa=stereofilesa, stereofilesb=stereofilesb, sohofiles=sohofiles, points_a=points_a, points_b=points_b, points_c=points_c, Arcoord=Arcoord, Brcoord=Brcoord, Aradius=Aradius, Bradius=Bradius, t0=t0, edellinenminimir, avalir, bvalir
@@ -9,6 +8,8 @@ pro r_iterointi, th_0=th_0, ph_0=ph_0, Ar_o=Ar_o, Br_o=Br_o, A_rad=A_rad, B_rad=
   print, 'Looking for the radius of the sphere and r-coordinate of the origin.'
   print, '--------------------------------------------------------------------'
   print, ''
+
+  lt_0_flag = 0
   
   ; Haun alkuparametrejä:
   nrofruns = 3                 ;how many times iterated
@@ -30,7 +31,8 @@ pro r_iterointi, th_0=th_0, ph_0=ph_0, Ar_o=Ar_o, Br_o=Br_o, A_rad=A_rad, B_rad=
   
   ;TÄSTÄ ALKAIS ETSINTÄKIERTO:
   for kierros=2, nrofruns+1 do begin
-     print, "Beginning iterationround number ", STRTRIM(kierros-1, 1),$
+     print, "Beginning r-coordinate and radius iteration subround number ",$
+            STRTRIM(kierros-1, 1),$
             " out of ", STRTRIM(nrofruns, 1), " with parameters:"
      print, 'Arcoord = ', strtrim(Arcoord, 1), $
             ', Brcoord = ', strtrim(Brcoord, 1), $
@@ -126,7 +128,7 @@ pro r_iterointi, th_0=th_0, ph_0=ph_0, Ar_o=Ar_o, Br_o=Br_o, A_rad=A_rad, B_rad=
               radius = rndArad[j] + rndBrad[j] *moment
               if radius lt 0 then begin
                  radius = 0.0
-                 print, "Tested radius less than 0."
+                 lt_0_flag = 1
               endif
               picturecoords2, origo=origo, satth=asatth, satph=asatph, $
                              satdist=asatdist, radius=radius, rx=rxa, ry=rya,$
@@ -139,7 +141,7 @@ pro r_iterointi, th_0=th_0, ph_0=ph_0, Ar_o=Ar_o, Br_o=Br_o, A_rad=A_rad, B_rad=
                  ksi = ksi + (ad-ar)*(ad-ar)
               endfor
            endfor
-
+           
            ;B
            for k=1, n_elements(framesb)-1 do begin
               tmp = strsplit(framesb[k], ':', /extract, /regex)
@@ -218,6 +220,11 @@ pro r_iterointi, th_0=th_0, ph_0=ph_0, Ar_o=Ar_o, Br_o=Br_o, A_rad=A_rad, B_rad=
            
         endfor
      endfor
+     
+     if lt_0_flag eq 1 then begin
+        print, 'At least one of the tried radii was less than zero.'
+        lt_0_flag = 0
+     endif
      
      minimi = min(errors, /NAN)
 
