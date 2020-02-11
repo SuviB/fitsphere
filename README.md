@@ -9,10 +9,15 @@ Input:
               good values to begin with could be: Ar_o=100, Br_o=5e+5
 - th_o       = latitude of the origin, direction of the propagation.
 - ph_o       = longitude of the origin, direction of the propagation.
-- Arad, Brad = radius of the sphere is given by R = Arad + Brad t.
+- Arad, Brad = radius of the sphere is given by R = Arad + Brad * t.
 - points_a   = a tag for the name of the file where points will be saved for the images from STEREOA.
 - points_b   = a tag for the name of the file where points will be saved for the images from STEREOB.
 - points_c   = a tag for the name of the file where points will be saved for the images from SOHO.
+
+The CME observations (.fits) should be stored in the archive they come in from VSO in the same directory as the code.
+- STEREO A: archive/secchi/L0/a/seq/cor2/date/ and archive/secchi/L0/a/seq/cor1/date/
+- STEREO B: archive/secchi/L0/b/seq/cor2/date/ and archive/secchi/L0/b/seq/cor1/date/
+- SOHO: archive/soho/private/data/processed/lasco/level_05/date/c2/ and archive/soho/private/data/processed/lasco/level_05/'+ sohodate+ '/c3/
 
 Output:
 - final parameters for 
